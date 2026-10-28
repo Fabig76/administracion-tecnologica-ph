@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Cambie https://Fabig76.github.io/administracion-tecnologica-ph por la dirección pública donde suba esta carpeta (sin barra final) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Administración Tecnológica PH">
+<meta property="og:title" content="Administración Tecnológica PH">
+<meta property="og:description" content="La administración de su conjunto en el celular de cada residente. Registro, portería, mudanzas, salón social, estado de cuenta y asistente con IA. Sin servidor y con los datos en manos del conjunto.">
+<meta property="og:image" content="https://Fabig76.github.io/administracion-tecnologica-ph/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://Fabig76.github.io/administracion-tecnologica-ph/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="Solución integral para administradores de propiedad horizontal: 8 portales, asistente con IA, sin servidor y sin soporte permanente.">
+<meta name="theme-color" content="#0E5FA8">
+<link rel="icon" type="image/png" sizes="64x64" href="favicon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<title>Administración Tecnológica PH</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Lexend:wght@300;400;500;600&display=swap">
+<style>
+/* Layout: una barra de pestañas fija; cada pestaña es una vista con texto a la izquierda y un celular animado a la derecha. */
+:root{
+  --bg:#F2F5F7; --surface:#FFFFFF; --ink:#13263A; --ink-2:#4A5D70; --line:#D6DEE6;
+  --brand:#0E5FA8; --brand-2:#073E73; --accent:#F28C28; --ok:#1E8E5A; --warn:#D9822B; --bad:#C43D3D;
+  --phone:#0B1724; --shadow:0 18px 50px rgba(19,38,58,.14);
+  --display:"Bricolage Grotesque","Trebuchet MS",Arial,sans-serif;
+  --body:"Lexend","Segoe UI",Roboto,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0C1621; --surface:#13202E; --ink:#EEF3F8; --ink-2:#A9B8C8; --line:#27384B;
+  --brand:#5FA8F0; --brand-2:#BFD9F7; --accent:#F6A24E; --ok:#4CC58A; --warn:#F0A552; --bad:#EF7A7A;
+  --phone:#05090E; --shadow:0 18px 50px rgba(0,0,0,.5); color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0C1621; --surface:#13202E; --ink:#EEF3F8; --ink-2:#A9B8C8; --line:#27384B;
+  --brand:#5FA8F0; --brand-2:#BFD9F7; --accent:#F6A24E; --ok:#4CC58A; --warn:#F0A552; --bad:#EF7A7A;
+  --phone:#05090E; --shadow:0 18px 50px rgba(0,0,0,.5); color-scheme:dark }
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;font-weight:300}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+h1,h2,h3{font-family:var(--display);line-height:1.08;text-wrap:balance;margin:0;font-weight:700}
+h1{font-size:clamp(34px,5.4vw,66px);letter-spacing:-.02em;font-weight:800}
+h2{font-size:clamp(26px,3.4vw,40px);letter-spacing:-.015em}
+h3{font-size:20px}
+p{margin:0}
+a{color:var(--brand)}
+strong{font-weight:600}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--accent)}
+.lead{font-size:18px;color:var(--ink-2);max-width:62ch}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:14px 22px;font:600 15px var(--body);cursor:pointer;text-decoration:none;transition:transform .15s,box-shadow .15s}
+.btn:focus-visible,.tab:focus-visible,.dbtn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn-primary{background:var(--accent);color:#1A1208}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(242,140,40,.35)}
+.btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn-ghost:hover{border-color:var(--brand);color:var(--brand)}
+
+/* Barra de pestañas */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar .wrap{display:flex;flex-direction:column;align-items:stretch;gap:6px;padding-block:10px 8px}
+.brandrow{position:relative;display:flex;justify-content:center;align-items:center}
+.theme-btn{position:absolute;right:0;top:50%;transform:translateY(-50%);border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 12px;font:500 13px var(--body);cursor:pointer;display:flex;align-items:center;gap:6px}
+.theme-btn:hover{border-color:var(--brand)}
+.theme-btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (max-width:640px){.brandrow{justify-content:space-between;gap:10px}.theme-btn{position:static;transform:none;flex:none}.theme-btn span{display:none}.theme-btn{padding:7px 9px}.logo{font-size:17px;min-width:0}.logo i{width:32px;height:32px;font-size:14px}}
+.logo{justify-content:center;font-size:clamp(22px,3vw,34px)}
+.logo i{width:44px;height:44px;font-size:18px;border-radius:12px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:17px;letter-spacing:-.01em;white-space:nowrap;color:var(--ink);text-decoration:none}
+.logo i{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand-2));display:grid;place-items:center;color:#fff;font-style:normal;font-size:15px;font-weight:800}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;min-width:0;padding:4px 2px;justify-content:safe center}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;border:0;background:transparent;color:var(--ink-2);font:500 14px var(--body);padding:9px 13px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.tab:hover{background:color-mix(in srgb,var(--brand) 10%,transparent);color:var(--ink)}
+.tab.active{background:var(--ink);color:var(--bg)}
+:root[data-theme="dark"] .tab.active{background:var(--brand);color:#06101A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tab.active{background:var(--brand);color:#06101A}}
+
+/* Vistas */
+.view{display:none}
+.view.active{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Héroe */
+.hero{background:radial-gradient(1200px 500px at 85% -10%,color-mix(in srgb,var(--brand) 22%,transparent),transparent 60%),var(--bg)}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding-block:56px 40px}
+.hero-copy{display:grid;gap:22px}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
+.hero-stats{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;gap:16px 32px;margin-top:8px}
+.hero-stats div{display:grid;gap:2px;align-content:end}
+.hero-stats span{white-space:nowrap}
+.hero-stats b{font-family:var(--display);font-size:30px;font-weight:800;line-height:1;color:var(--brand)}
+.hero-stats span{font-size:13px;color:var(--ink-2)}
+.hero-visual{display:grid;place-items:center;position:relative;min-width:0;padding:28px 0}
+.orbit{position:absolute;width:min(440px,88%);aspect-ratio:1;border-radius:50%;border:1.5px dashed color-mix(in srgb,var(--brand) 35%,transparent);animation:spin 40s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.chip{position:absolute;z-index:4;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:500;box-shadow:var(--shadow);animation:float 6s ease-in-out infinite;white-space:nowrap}
+.chip:nth-child(2){top:6%;left:0;animation-delay:0s}
+.chip:nth-child(3){top:30%;right:0;animation-delay:1.5s}
+.chip:nth-child(4){bottom:26%;left:0;animation-delay:3s}
+.chip:nth-child(5){bottom:5%;right:0;animation-delay:4.5s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* Celular */
+.phone{width:300px;max-width:100%;aspect-ratio:9/17;background:var(--phone);border-radius:38px;padding:12px;box-shadow:var(--shadow),inset 0 0 0 2px #2b3a4b;position:relative;flex:none}
+.phone::before{content:"";position:absolute;top:12px;left:50%;transform:translateX(-50%);width:92px;height:24px;background:var(--phone);border-radius:0 0 16px 16px;z-index:3}
+.screen{background:#F6F8FA;color:#13263A;border-radius:28px;height:100%;overflow:hidden;position:relative;font-size:12.5px;line-height:1.4;font-weight:400}
+.screen>*{animation:scr .4s ease}
+@keyframes scr{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.s-head{background:linear-gradient(135deg,#0E5FA8,#073E73);color:#fff;padding:34px 16px 14px;font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px}
+.s-head small{display:block;font-weight:400;font-size:11px;opacity:.85}
+.s-body{padding:14px;display:grid;gap:10px}
+.s-card{background:#fff;border:1px solid #E1E7EE;border-radius:12px;padding:10px 12px;display:grid;gap:6px}
+.s-card b{font-weight:600}
+.s-label{font-size:11px;color:#5A6B7D;font-weight:500}
+.s-input{border:1.5px solid #CBD5E0;border-radius:8px;padding:8px 10px;background:#fff;min-height:34px;display:flex;align-items:center;position:relative}
+.s-input.focus{border-color:#0E5FA8;box-shadow:0 0 0 3px rgba(14,95,168,.18)}
+.s-input .caret{display:inline-block;width:1.5px;height:14px;background:#0E5FA8;margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.s-btn{background:#0E5FA8;color:#fff;border-radius:10px;padding:10px;text-align:center;font-weight:600;position:relative}
+.s-btn.alt{background:#F28C28;color:#1A1208}
+.s-btn.soft{background:#E7F0FA;color:#0E5FA8}
+.tap::after{content:"";position:absolute;inset:-6px;border-radius:14px;border:2px solid #F28C28;animation:tap 1.2s ease-out infinite}
+@keyframes tap{0%{transform:scale(.92);opacity:1}100%{transform:scale(1.12);opacity:0}}
+.s-ok{display:grid;place-items:center;gap:10px;text-align:center;padding:26px 14px}
+.s-ok .ring{width:66px;height:66px;border-radius:50%;background:#1E8E5A;display:grid;place-items:center;color:#fff;font-size:34px;animation:pop .5s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.s-ok b{font-size:16px;font-weight:700}
+.s-code{font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:.08em;color:#0E5FA8;background:#E7F0FA;border-radius:10px;padding:8px 14px}
+.s-row{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.s-pill{font-size:10.5px;font-weight:600;border-radius:999px;padding:3px 8px;background:#E7F0FA;color:#0E5FA8}
+.s-pill.ok{background:#E3F4EA;color:#1E8E5A}.s-pill.warn{background:#FCEFD9;color:#B35F0C}.s-pill.bad{background:#FBE3E3;color:#B03030}
+.s-list{display:grid;gap:6px}
+.s-item{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid #E1E7EE;border-radius:10px;padding:8px 10px}
+.s-item i{width:28px;height:28px;border-radius:8px;background:#E7F0FA;display:grid;place-items:center;font-style:normal;flex:none}
+.s-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:10.5px;text-align:center}
+.s-cal div{padding:6px 0;border-radius:6px;background:#fff;border:1px solid #E1E7EE}
+.s-cal .busy{background:#FBE3E3;color:#B03030}.s-cal .pick{background:#0E5FA8;color:#fff;font-weight:700}.s-cal .free{background:#E3F4EA}
+.s-amount{font-family:var(--display);font-size:26px;font-weight:800}
+.s-chat{display:grid;gap:8px;padding:12px}
+.bub{max-width:85%;padding:9px 11px;border-radius:14px;font-size:12px;line-height:1.4}
+.bub.me{background:#0E5FA8;color:#fff;justify-self:end;border-bottom-right-radius:4px}
+.bub.ai{background:#fff;border:1px solid #E1E7EE;border-bottom-left-radius:4px}
+.dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:#8A9BB0;margin-right:3px;animation:dot 1s infinite}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes dot{0%,100%{opacity:.3}50%{opacity:1}}
+.bar{height:8px;border-radius:999px;background:#E1E7EE;overflow:hidden}.bar i{display:block;height:100%;background:#1E8E5A;width:0;animation:grow 1.6s ease forwards}
+@keyframes grow{to{width:100%}}
+.hl{outline:3px solid #F28C28;outline-offset:3px;border-radius:10px;animation:hlp 1.2s ease-in-out infinite}
+@keyframes hlp{50%{outline-color:rgba(242,140,40,.35)}}
+
+/* Reproductor de demostración */
+.demo{display:grid;gap:14px;justify-items:center}
+.demo-cap{min-height:66px;max-width:320px;text-align:center;font-size:15px;font-weight:500;line-height:1.4;color:var(--ink)}
+.demo-cap small{display:block;color:var(--ink-2);font-weight:300;font-size:13px;margin-top:2px}
+.demo-ctl{display:flex;align-items:center;gap:8px}
+.dbtn{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;width:38px;height:38px;cursor:pointer;font-size:15px;display:grid;place-items:center}
+.dbtn.play{width:auto;padding:0 16px;font-weight:600;font-size:14px}
+.dots-nav{display:flex;gap:5px}
+.dots-nav i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:background .2s,transform .2s}
+.dots-nav i.on{background:var(--accent);transform:scale(1.25)}
+
+/* Secciones de módulo */
+.mod .wrap{display:grid;grid-template-columns:1fr 380px;gap:40px;padding-block:44px 60px;align-items:start}
+.mod-copy{display:grid;gap:22px;min-width:0}
+.mod-copy ul{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+.mod-copy li{display:block;position:relative;padding-left:40px;font-size:16px}
+.mod-copy li i{position:absolute;left:0;top:0;width:28px;height:28px;border-radius:8px;background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok);display:grid;place-items:center;font-style:normal;font-weight:700}
+.steps{display:grid;gap:10px;counter-reset:s}
+.step{display:block;position:relative;padding:12px 14px 12px 60px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.step::before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:12px;width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;font:700 15px var(--display);display:grid;place-items:center}
+.step b{display:block;font-weight:600;line-height:34px}
+.step span{display:block;color:var(--ink-2);font-size:14px}
+.callout{border-left:4px solid var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);padding:12px 16px;border-radius:0 12px 12px 0;font-size:15px}
+.sticky{position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px)}
+
+/* Bloques del inicio */
+.band{padding-block:56px}
+.band.alt{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.sec-head{display:grid;gap:10px;max-width:70ch;margin-bottom:28px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.pillar{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;display:grid;gap:10px}
+.pillar .ic{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--brand-2));display:grid;place-items:center;font-size:22px}
+.pillar h3{font-size:19px}
+.pillar p{color:var(--ink-2);font-size:15px}
+.modcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:8px;cursor:pointer;text-align:left;font:inherit;color:inherit;transition:transform .15s,border-color .15s}
+.modcard:hover{transform:translateY(-3px);border-color:var(--brand)}
+.modcard .ic{font-size:26px}
+.modcard b{font-family:var(--display);font-size:17px;font-weight:700}
+.modcard span{font-size:14px;color:var(--ink-2)}
+.modcard em{font-style:normal;font-size:13px;color:var(--brand);font-weight:500}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.cmp{border-radius:18px;padding:22px;display:grid;gap:12px;border:1px solid var(--line);background:var(--surface)}
+.cmp.after{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 7%,var(--surface))}
+.cmp h3{display:flex;align-items:center;gap:8px}
+.cmp ul{margin:0;padding:0;list-style:none;display:grid;gap:8px;font-size:15px}
+.cmp li{display:flex;gap:10px}
+.cmp li i{font-style:normal;flex:none}
+.ticker{display:flex;gap:10px;flex-wrap:wrap}
+.ticker span{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:14px;font-weight:500}
+.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:14px}
+.flow .node{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;text-align:center;display:grid;gap:4px}
+.flow .node b{font-family:var(--display)}
+.flow .arrow{font-size:26px;color:var(--accent);animation:nudge 1.4s ease-in-out infinite}
+@keyframes nudge{50%{transform:translateX(6px)}}
+.cta{background:linear-gradient(135deg,var(--brand-2),var(--brand));color:#fff;border-radius:24px;padding:40px;display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:center}
+.cta h2{color:#fff}
+.cta p{color:rgba(255,255,255,.85)}
+.cta .box{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);border-radius:16px;padding:18px;display:grid;gap:8px;font-size:15px}
+.cta .box b{font-size:18px;font-family:var(--display)}
+.cta code{background:rgba(0,0,0,.25);padding:4px 8px;border-radius:6px;font-size:14px;user-select:all}
+
+/* Hoja de datos animada */
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:13px;min-width:0}
+.sheet-bar{display:flex;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);font-weight:500}
+.sheet-bar i{width:22px;height:22px;border-radius:5px;background:#1E8E5A;display:grid;place-items:center;color:#fff;font-style:normal;font-size:12px;font-weight:700}
+.sheet table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+.sheet th,.sheet td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:7px 10px;text-align:left;white-space:nowrap}
+.sheet th{background:color-mix(in srgb,var(--line) 50%,var(--surface));font-weight:600;font-size:12px}
+.sheet tr.new td{animation:rowin .6s ease;background:color-mix(in srgb,var(--ok) 18%,transparent)}
+@keyframes rowin{from{background:var(--ok);color:#fff}}
+.sheet-wrap{overflow-x:auto}
+.locks{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.lock{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;min-width:0}
+.lock .ic{font-size:28px;flex:none;line-height:1}
+.lock b{display:block;margin-bottom:2px}
+
+footer{padding-block:34px;color:var(--ink-2);font-size:13px;border-top:1px solid var(--line);margin-top:40px}
+footer .wrap{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+@media (max-width:900px){
+  .hero .wrap,.mod .wrap,.cta{grid-template-columns:1fr}
+  .grid3,.grid4,.compare{grid-template-columns:1fr 1fr}
+  .flow{grid-template-columns:1fr}.flow .arrow{transform:rotate(90deg);justify-self:center}
+  .sticky{position:static}
+  .hero-visual{order:-1;padding:16px 0}
+  .chip{display:none}
+  .hero-stats{grid-template-columns:1fr 1fr}
+  .datos-grid{grid-template-columns:1fr!important;justify-items:center}
+  .datos-grid>div{width:100%}
+}
+@media (max-width:560px){
+  .grid3,.grid4,.compare,.locks{grid-template-columns:1fr}
+  .phone{width:270px}
+  .hero .wrap{padding-block:34px 24px}
+  .cta{padding:26px}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
+</style>
+
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <div class="brandrow">
+      <a class="logo" href="#inicio"><i>PH</i>Administración Tecnológica PH</a>
+      <button class="theme-btn" id="themeBtn" type="button" aria-label="Cambiar entre modo claro y oscuro"><em id="themeIcon" style="font-style:normal">🌙</em><span id="themeTxt">Modo oscuro</span></button>
+    </div>
+    <nav class="tabs" id="tabs" aria-label="Secciones">
+      <button class="tab active" data-view="inicio">Inicio</button>
+      <button class="tab" data-view="propietarios">Propietarios</button>
+      <button class="tab" data-view="arrendatarios">Arrendatarios</button>
+      <button class="tab" data-view="porteria">Portería</button>
+      <button class="tab" data-view="mudanzas">Mudanzas</button>
+      <button class="tab" data-view="salon">Salón social</button>
+      <button class="tab" data-view="cuenta">Estado de cuenta</button>
+      <button class="tab" data-view="admin">Administrador</button>
+      <button class="tab" data-view="ia">Asistente con IA</button>
+      <button class="tab" data-view="datos">Sus datos</button>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ INICIO ============ -->
+<section class="view active" id="v-inicio">
+  <div class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <span class="eyebrow">Para conjuntos residenciales y edificios</span>
+        <h1>La administración de su conjunto, en el celular de cada residente.</h1>
+        <p class="lead">Registro de propietarios y arrendatarios, portería, mudanzas, salón social, estado de cuenta y un asistente que responde las dudas de todos, las 24 horas. Sin servidor, sin mensualidad de software y con los datos en manos del conjunto.</p>
+        <div class="hero-ctas">
+          <button class="btn btn-primary" data-go="propietarios">Ver cómo funciona</button>
+          <button class="btn btn-ghost" data-go="contacto">Pedir una demostración</button>
+        </div>
+        <div class="hero-stats">
+          <div><b>8</b><span>portales en uno</span></div>
+          <div><b>0</b><span>servidores que mantener</span></div>
+          <div><b>24/7</b><span>asistente para residentes</span></div>
+          <div><b>100%</b><span>de los datos son suyos</span></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="orbit"></div>
+        <div class="chip">🚚 Mudanza confirmada</div>
+        <div class="chip">🏛️ Salón reservado</div>
+        <div class="chip">📄 Paz y salvo listo</div>
+        <div class="chip">🤖 "¿Cómo reservo el salón?"</div>
+        <div class="phone"><div class="screen" id="hero-screen"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="band">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Por qué es distinto</span>
+        <h2>Tres cosas que ningún administrador quiere volver a pagar</h2>
+      </div>
+      <div class="grid3">
+        <div class="pillar"><div class="ic">🖥️</div><h3>Sin servidor ni VPS</h3><p>No hay máquinas que contratar, actualizar ni vigilar. La solución corre sobre servicios de Google que su conjunto ya conoce y que no se caen a las tres de la mañana.</p></div>
+        <div class="pillar"><div class="ic">🧰</div><h3>Sin soporte permanente</h3><p>No depende de un técnico de planta ni de un contrato mensual de mantenimiento. Una vez implementada, el administrador la opera solo desde su navegador.</p></div>
+        <div class="pillar"><div class="ic">🔐</div><h3>Los datos son del conjunto</h3><p>Toda la información vive en una hoja de cálculo de Google que pertenece a la copropiedad. Usted decide quién la ve, la exporta cuando quiera y nadie más la retiene.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="band alt">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Todo lo que hace</span>
+        <h2>Ocho portales, una sola puerta de entrada</h2>
+        <p class="lead">Cada persona entra al portal que le corresponde desde su celular, sin instalar nada. Toque una tarjeta para ver cómo funciona.</p>
+      </div>
+      <div class="grid4">
+        <button class="modcard" data-go="propietarios"><span class="ic">🏠</span><b>Registro del apartamento</b><span>El propietario registra su apto, su familia, vehículos, mascotas y autoriza encargados e inmobiliarias.</span><em>Ver demostración →</em></button>
+        <button class="modcard" data-go="arrendatarios"><span class="ic">🔑</span><b>Portal del arrendatario</b><span>Quien vive en arriendo agrega sus datos sin molestar al propietario.</span><em>Ver demostración →</em></button>
+        <button class="modcard" data-go="porteria"><span class="ic">🛡️</span><b>Portal de portería</b><span>El vigilante consulta quién vive en cada apto, busca una placa y controla mudanzas.</span><em>Ver demostración →</em></button>
+        <button class="modcard" data-go="mudanzas"><span class="ic">🚚</span><b>Agenda de mudanzas</b><span>Reserva del ascensor por torre y horario, autorizada por el propietario.</span><em>Ver demostración →</em></button>
+        <button class="modcard" data-go="salon"><span class="ic">🏛️</span><b>Salón social</b><span>Calendario, reserva por turnos, comprobante de pago y liberación automática.</span><em>Ver demostración →</em></button>
+        <button class="modcard" data-go="cuenta"><span class="ic">💳</span><b>Estado de cuenta</b><span>Saldo, factura del mes y paz y salvo descargable sin llamar a la administración.</span><em>Ver demostración →</em></button>
+        <button class="modcard" data-go="admin"><span class="ic">🗂️</span><b>Panel del administrador</b><span>Busca, edita y supervisa reservas desde un solo lugar.</span><em>Ver demostración →</em></button>
+        <button class="modcard" data-go="ia"><span class="ic">🤖</span><b>Asistente con IA</b><span>Responde a residentes y guardas sobre cómo usar cada portal, día y noche.</span><em>Ver demostración →</em></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="band">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Antes y después</span>
+        <h2>Lo que cambia en el día a día de la administración</h2>
+      </div>
+      <div class="compare">
+        <div class="cmp"><h3>❌ Hoy, en la mayoría de conjuntos</h3><ul>
+          <li><i>•</i>Formatos impresos que nadie devuelve y un censo desactualizado.</li>
+          <li><i>•</i>La portería no sabe quién vive en cada apto ni quién está autorizado a entrar.</li>
+          <li><i>•</i>Llamadas y mensajes todo el día para pedir el paz y salvo o reservar el salón.</li>
+          <li><i>•</i>Plataformas que cobran una mensualidad por cada módulo y se quedan con los datos.</li>
+          <li><i>•</i>Mudanzas que llegan sin aviso y se cruzan en el mismo ascensor.</li>
+        </ul></div>
+        <div class="cmp after"><h3>✅ Con Administración Tecnológica PH</h3><ul>
+          <li><i>✔</i>Cada propietario mantiene su propio registro desde el celular, con firma electrónica y autorización de datos.</li>
+          <li><i>✔</i>La portería consulta en segundos residentes, placas, mascotas y encargados autorizados.</li>
+          <li><i>✔</i>El residente descarga su estado de cuenta y su paz y salvo solo, cuando lo necesita.</li>
+          <li><i>✔</i>Sin mensualidad de software y con la información en una hoja que es del conjunto.</li>
+          <li><i>✔</i>Mudanzas y salón social se agendan con reglas claras y confirmación por correo.</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="band alt">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Cómo se pone en marcha</span>
+        <h2>Tres pasos y el conjunto queda funcionando</h2>
+      </div>
+      <div class="flow">
+        <div class="node"><span style="font-size:28px">📋</span><b>1. Levantamos la información</b><span>Lista de apartamentos, torres, reglas de mudanzas y salón, logo del conjunto.</span></div>
+        <div class="arrow">➜</div>
+        <div class="node"><span style="font-size:28px">⚙️</span><b>2. Configuramos los portales</b><span>Los 8 portales quedan con la identidad de su conjunto y conectados a su propia hoja de datos.</span></div>
+        <div class="arrow">➜</div>
+        <div class="node"><span style="font-size:28px">📣</span><b>3. Socializamos con residentes</b><span>Avisos con código QR, videos guía y el asistente responden las dudas desde el primer día.</span></div>
+      </div>
+      <div class="ticker" style="margin-top:26px">
+        <span>✅ Cumple la Ley 1581 de 2012 (datos personales)</span><span>✅ Funciona en Android y iPhone sin instalar apps</span><span>✅ Sin contratos de permanencia</span><span>✅ Capacitación a portería incluida</span><span>✅ Videos y manuales para residentes</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="band" id="contacto">
+    <div class="wrap">
+      <div class="cta">
+        <div style="display:grid;gap:12px">
+          <span class="eyebrow" style="color:#FFD8A8">Demostración sin costo</span>
+          <h2>Véalo funcionando con los datos de su propio conjunto</h2>
+          <p>En una reunión de 30 minutos le mostramos cada portal, resolvemos sus preguntas y le entregamos una propuesta ajustada al número de apartamentos.</p>
+        </div>
+        <div class="box">
+          <b>Pida su demostración</b>
+          <span>Bytracking</span>
+          <span>WhatsApp: <code>+1 (619) 984-3837</code></span>
+          <span>Correo: <code>customerservice@bytracking.net</code></span>
+          <span style="font-size:13px;opacity:.85">Atendemos administradores y consejos de administración en todo el país.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MÓDULOS ============ -->
+<section class="view mod" id="v-propietarios">
+  <div class="wrap">
+    <div class="mod-copy">
+      <span class="eyebrow">Portal 1 de 8</span>
+      <h2>Registro del apartamento por el propietario</h2>
+      <p class="lead">El propietario llena una sola vez el formulario del conjunto desde su celular. Reemplaza el formato impreso y deja el censo siempre al día.</p>
+      <ul>
+        <li><i>✓</i>Registra propietario, residentes, menores, vehículos, motos, bicicletas, mascotas y contactos de emergencia.</li>
+        <li><i>✓</i>Autoriza a un <strong>encargado</strong> o a una <strong>inmobiliaria</strong> para que la portería les permita el ingreso.</li>
+        <li><i>✓</i>Firma electrónica y autorización de tratamiento de datos incluidas en el mismo formulario.</li>
+        <li><i>✓</i>Recibe por correo un número de formulario para editar su registro cuando algo cambie.</li>
+      </ul>
+      <div class="steps">
+        <div class="step"><b>Abre el portal desde el código QR</b><span>Pegado en ascensores y portería. No hay que instalar nada.</span></div>
+        <div class="step"><b>Llena sus datos sección por sección</b><span>Cada sección se abre al tocarla; los campos obligatorios se marcan en rojo si faltan.</span></div>
+        <div class="step"><b>Envía y recibe su número de formulario</b><span>Con ese número, su apartamento y su cédula puede entrar a editar después.</span></div>
+      </div>
+      <div class="callout">Solo el propietario, su inmobiliaria o su encargado crean el registro del apartamento. El arrendatario entra después por su propio portal.</div>
+    </div>
+    <div class="sticky"><div class="demo" data-demo="propietarios"></div></div>
+  </div>
+</section>
+
+<section class="view mod" id="v-arrendatarios">
+  <div class="wrap">
+    <div class="mod-copy">
+      <span class="eyebrow">Portal 2 de 8</span>
+      <h2>Portal del arrendatario</h2>
+      <p class="lead">Quien vive en arriendo agrega sus propios datos, los de su familia, sus vehículos y sus mascotas, sin que el propietario tenga que hacerlo por él.</p>
+      <ul>
+        <li><i>✓</i>Escribe su apartamento; el sistema confirma que el propietario ya lo registró.</li>
+        <li><i>✓</i>Registra hasta cuatro residentes y menores, con parentesco y celular.</li>
+        <li><i>✓</i>Agrega vehículos, motos, bicicletas y mascotas con sus datos de vacunación.</li>
+        <li><i>✓</i>Después puede actualizar su celular o correo con su cédula.</li>
+      </ul>
+      <div class="callout">El propietario mantiene el control: si cambia de arrendatario, borra a los anteriores desde su propio registro y libera los cupos.</div>
+    </div>
+    <div class="sticky"><div class="demo" data-demo="arrendatarios"></div></div>
+  </div>
+</section>
+
+<section class="view mod" id="v-porteria">
+  <div class="wrap">
+    <div class="mod-copy">
+      <span class="eyebrow">Portal 3 de 8</span>
+      <h2>Portal de portería</h2>
+      <p class="lead">Pensado para guardas que no usan tecnología a diario: una contraseña, un cuadro de búsqueda y la respuesta en pantalla grande.</p>
+      <ul>
+        <li><i>✓</i>Busca por apartamento o por nombre y ve residentes, mascotas, vehículos y parqueaderos.</li>
+        <li><i>✓</i>Ve quién está autorizado por el propietario: encargado e inmobiliaria.</li>
+        <li><i>✓</i>Busca una placa y sabe a qué apartamento pertenece el vehículo.</li>
+        <li><i>✓</i>Marca las mudanzas del día como realizadas, con su nombre para auditoría.</li>
+        <li><i>✓</i>No ve correos ni celulares: solo lo necesario para controlar el acceso.</li>
+      </ul>
+      <div class="callout">La sesión del guarda caduca sola al terminar el turno y cada consulta queda registrada.</div>
+    </div>
+    <div class="sticky"><div class="demo" data-demo="porteria"></div></div>
+  </div>
+</section>
+
+<section class="view mod" id="v-mudanzas">
+  <div class="wrap">
+    <div class="mod-copy">
+      <span class="eyebrow">Portal 4 de 8</span>
+      <h2>Agenda de mudanzas</h2>
+      <p class="lead">El propietario reserva el ascensor para una mudanza completa, la entrada de muebles o una salida parcial. La portería lo ve en su pantalla el mismo día.</p>
+      <ul>
+        <li><i>✓</i>Un solo turno por torre y día: no hay dos mudanzas en el mismo ascensor.</li>
+        <li><i>✓</i>Reglas de anticipación y horarios que define el conjunto.</li>
+        <li><i>✓</i>Confirmación por correo al propietario y a la administración.</li>
+        <li><i>✓</i>El propietario puede cancelar con anticipación; la portería marca la mudanza como realizada.</li>
+      </ul>
+      <div class="callout">Toda mudanza la autoriza el propietario con su cédula y su número de formulario, nunca un tercero.</div>
+    </div>
+    <div class="sticky"><div class="demo" data-demo="mudanzas"></div></div>
+  </div>
+</section>
+
+<section class="view mod" id="v-salon">
+  <div class="wrap">
+    <div class="mod-copy">
+      <span class="eyebrow">Portal 5 de 8</span>
+      <h2>Reserva del salón social</h2>
+      <p class="lead">Un calendario con los turnos libres y ocupados, reserva en dos toques y comprobante de pago desde el mismo celular.</p>
+      <ul>
+        <li><i>✓</i>Pueden reservar propietarios y arrendatarios al día con la administración.</li>
+        <li><i>✓</i>Turnos de mañana y tarde; el calendario muestra en rojo lo que ya está tomado.</li>
+        <li><i>✓</i>La reserva queda pendiente hasta subir el comprobante; si no se paga a tiempo, se libera sola.</li>
+        <li><i>✓</i>El administrador ve cada comprobante y puede cancelar con una nota.</li>
+      </ul>
+      <div class="callout">Si el apartamento está en mora, el sistema lo informa con amabilidad y no permite reservar hasta ponerse al día.</div>
+    </div>
+    <div class="sticky"><div class="demo" data-demo="salon"></div></div>
+  </div>
+</section>
+
+<section class="view mod" id="v-cuenta">
+  <div class="wrap">
+    <div class="mod-copy">
+      <span class="eyebrow">Portal 6 de 8</span>
+      <h2>Estado de cuenta y paz y salvo</h2>
+      <p class="lead">El propietario consulta cuánto debe, ve sus últimos pagos, descarga la factura del mes y genera su paz y salvo en segundos.</p>
+      <ul>
+        <li><i>✓</i>Entra con su número de formulario, su apartamento y su cédula.</li>
+        <li><i>✓</i>Ve el saldo actual, el detalle del mes y el enlace de pago.</li>
+        <li><i>✓</i>Descarga la factura en PDF que entregó el contador.</li>
+        <li><i>✓</i>El paz y salvo se genera automáticamente solo si está al día, con fecha y número.</li>
+      </ul>
+      <div class="callout">El contador entrega un archivo al mes y el sistema lo reparte por apartamento. La administración deja de responder una por una.</div>
+    </div>
+    <div class="sticky"><div class="demo" data-demo="cuenta"></div></div>
+  </div>
+</section>
+
+<section class="view mod" id="v-admin">
+  <div class="wrap">
+    <div class="mod-copy">
+      <span class="eyebrow">Portal 7 de 8</span>
+      <h2>Panel del administrador</h2>
+      <p class="lead">Un solo lugar para buscar cualquier registro, corregir datos, ver las mudanzas que vienen y las reservas del salón con sus comprobantes.</p>
+      <ul>
+        <li><i>✓</i>Busca por apartamento, nombre, cédula, correo o celular.</li>
+        <li><i>✓</i>Edita los datos del registro completo sin pedirle nada al propietario.</li>
+        <li><i>✓</i>Filtra las mudanzas de los próximos días y las reservas pendientes de pago.</li>
+        <li><i>✓</i>Carga el estado de cuenta mensual en minutos.</li>
+      </ul>
+      <div class="callout">Nada se borra: el sistema conserva el historial y el administrador solo corrige.</div>
+    </div>
+    <div class="sticky"><div class="demo" data-demo="admin"></div></div>
+  </div>
+</section>
+
+<section class="view mod" id="v-ia">
+  <div class="wrap">
+    <div class="mod-copy">
+      <span class="eyebrow">Portal 8 de 8</span>
+      <h2>Asistente con inteligencia artificial</h2>
+      <p class="lead">Un ayudante que vive dentro de cada portal y responde en lenguaje sencillo cómo hacer cada cosa. Para el residente que no entiende de tecnología y para el guarda del turno de la noche.</p>
+      <ul>
+        <li><i>✓</i>Responde las 24 horas sobre registro, mudanzas, salón, estado de cuenta y portería.</li>
+        <li><i>✓</i>Sabe quién pregunta: si se identifica como guarda, responde con las instrucciones de portería.</li>
+        <li><i>✓</i>Solo habla de los portales del conjunto; no inventa ni responde temas ajenos.</li>
+        <li><i>✓</i>No ve datos personales de nadie: explica el proceso, no consulta registros.</li>
+        <li><i>✓</i>Reduce llamadas y mensajes repetidos a la administración.</li>
+      </ul>
+      <div class="callout">Una pregunta frecuente como "¿cómo saco el paz y salvo?" se responde sola, con los pasos exactos, sin que el administrador conteste el teléfono.</div>
+    </div>
+    <div class="sticky"><div class="demo" data-demo="ia"></div></div>
+  </div>
+</section>
+
+<section class="view" id="v-datos">
+  <div class="band">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Dónde viven los datos</span>
+        <h2>Toda la información queda en una hoja de cálculo que es del conjunto</h2>
+        <p class="lead">Cada registro, reserva y mudanza se guarda en una hoja de Google Sheets de la copropiedad. No pasa por una empresa intermediaria ni por un servidor de terceros. Mire cómo aparece una fila en el momento en que un propietario se registra.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:300px 1fr;gap:30px;align-items:start" class="datos-grid">
+        <div class="demo" data-demo="datos"></div>
+        <div style="display:grid;gap:18px;min-width:0">
+          <div class="sheet">
+            <div class="sheet-bar"><i>S</i> Registros del conjunto <span class="s-pill ok" style="margin-left:auto">Propiedad de la copropiedad</span></div>
+            <div class="sheet-wrap"><table id="sheet-table">
+              <thead><tr><th>N° Form.</th><th>Fecha</th><th>Apto</th><th>Diligencia</th><th>Propietario</th><th>Residentes</th><th>Vehículos</th><th>Mascotas</th></tr></thead>
+              <tbody>
+                <tr><td>PH-0118</td><td>2026-10-02</td><td>301</td><td>Propietario</td><td>M. Ríos</td><td>3</td><td>1</td><td>0</td></tr>
+                <tr><td>PH-0119</td><td>2026-10-02</td><td>704</td><td>Propietario</td><td>J. Patiño</td><td>2</td><td>2</td><td>1</td></tr>
+                <tr><td>PH-0120</td><td>2026-10-03</td><td>1102</td><td>Encargado</td><td>Inmob. Norte</td><td>0</td><td>0</td><td>0</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+          <div class="locks">
+            <div class="lock"><span class="ic">🔑</span><div><b>Usted decide quién la ve</b><br><span style="color:var(--ink-2);font-size:14px">Acceso solo para la administración y el consejo que usted autorice.</span></div></div>
+            <div class="lock"><span class="ic">📤</span><div><b>Expórtela cuando quiera</b><br><span style="color:var(--ink-2);font-size:14px">A Excel o PDF, para la asamblea, la revisoría o el contador.</span></div></div>
+            <div class="lock"><span class="ic">🗄️</span><div><b>Copia de seguridad diaria</b><br><span style="color:var(--ink-2);font-size:14px">Una copia automática cada noche, con 30 días de historial.</span></div></div>
+            <div class="lock"><span class="ic">⚖️</span><div><b>Cumple la Ley 1581 de 2012</b><br><span style="color:var(--ink-2);font-size:14px">Autorización de datos en cada registro y mínimo acceso por rol.</span></div></div>
+          </div>
+          <div class="callout">Si algún día decide dejar de usar la solución, la hoja sigue siendo suya con toda la información. No hay nada que "migrar" ni que pedirle a nadie.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap"><span>Administración Tecnológica PH · Bytracking</span><span>WhatsApp +1 (619) 984-3837 · customerservice@bytracking.net</span></div></footer>
+
+<script>
+// ---------- Pantallas reutilizables ----------
+const H = (t, s) => `<div class="s-head"><span>${t}</span>${s ? `<small>${s}</small>` : ''}</div>`;
+const head = (t, s) => `<div class="s-head"><div>${t}${s ? `<small>${s}</small>` : ''}</div></div>`;
+const inp = (label, val, o = {}) => `<div><div class="s-label">${label}</div><div class="s-input ${o.focus ? 'focus' : ''} ${o.hl ? 'hl' : ''}">${o.type ? `<span class="type" data-text="${val}"></span><i class="caret"></i>` : val}</div></div>`;
+const btn = (t, o = {}) => `<div class="s-btn ${o.cls || ''} ${o.tap ? 'tap' : ''}">${t}</div>`;
+const ok = (t, s, code) => `<div class="s-ok"><div class="ring">✓</div><b>${t}</b><span style="color:#5A6B7D">${s || ''}</span>${code ? `<div class="s-code">${code}</div>` : ''}</div>`;
+const item = (ic, t, s) => `<div class="s-item"><i>${ic}</i><div><b>${t}</b>${s ? `<div class="s-label">${s}</div>` : ''}</div></div>`;
+
+// ---------- Guiones de demostración ----------
+const DEMOS = {
+  propietarios: [
+    { cap: 'El propietario abre el portal con el código QR de los ascensores.', sub: 'No instala nada: se abre en el navegador del celular.', scr: head('Registro de residentes', 'Conjunto Residencial Demo') + `<div class="s-body"><div class="s-card"><b>Bienvenido</b><span class="s-label">Complete el formulario oficial. Los campos con * son obligatorios.</span></div>${btn('📝 Crear registro', { tap: true })}${btn('✏️ Editar mi registro', { cls: 'soft' })}</div>` },
+    { cap: 'Elige "Propietario" y escribe sus datos.', sub: 'Nombre, cédula, correo y celular.', scr: head('Datos del propietario', 'Sección 1 de 11') + `<div class="s-body">${inp('Diligencia como *', '◉ Propietario  ○ Encargado')}${inp('Nombre completo *', 'Carlos Ruiz Pérez', { focus: true, type: true })}${inp('Cédula *', '1020304050')}${inp('Celular *', '3001234567')}</div>` },
+    { cap: 'Registra a quienes viven con él, sus vehículos y mascotas.', sub: 'Cada sección se abre tocando el título.', scr: head('Secciones del formulario') + `<div class="s-body s-list">${item('👨‍👩‍👧', 'Residentes', '2 adultos, 1 menor')}${item('🚗', 'Vehículos y motos', 'ABC123 · Mazda 3')}${item('🐕', 'Mascotas', 'Luna · Golden')}<div class="s-item hl"><i>🤝</i><div><b>Encargado / Inmobiliaria</b><div class="s-label">Autoriza el ingreso</div></div></div>${item('📞', 'Contactos de emergencia')}</div>` },
+    { cap: 'Autoriza a un encargado o a una inmobiliaria.', sub: 'Así la portería les permite el ingreso al apartamento.', scr: head('Encargado del inmueble', 'Sección 2') + `<div class="s-body">${inp('Nombre del encargado', 'Luisa Fernanda Mejía', { type: true, focus: true })}${inp('Cédula', '43567890')}${inp('Celular', '3112223344')}<div class="s-card" style="background:#FCEFD9;border-color:#F2C58A"><b>ℹ️ La autorización la da usted</b><span class="s-label">Sin este registro la portería no puede dejar entrar a nadie.</span></div></div>` },
+    { cap: 'Firma con su nombre y cédula y envía.', sub: 'La firma electrónica y la autorización de datos quedan guardadas.', scr: head('Firma y autorización', 'Sección 11') + `<div class="s-body"><div class="s-card"><b>☑ Autorizo el tratamiento de mis datos</b><span class="s-label">Ley 1581 de 2012</span></div>${inp('Firma: nombre', 'Carlos Ruiz Pérez')}${inp('Firma: cédula', '1020304050')}${btn('📤 Enviar formulario', { tap: true })}</div>` },
+    { cap: 'Listo. Recibe su número de formulario en pantalla y por correo.', sub: 'Con él podrá editar su registro cuando algo cambie.', scr: head('Registro creado') + ok('¡Registro creado!', 'Guarde este número para editar después.', 'PH-0121') },
+  ],
+  arrendatarios: [
+    { cap: 'El arrendatario escribe su número de apartamento.', scr: head('Portal del arrendatario') + `<div class="s-body"><div class="s-card"><b>Registre sus datos</b><span class="s-label">Solo necesita el número de su apartamento.</span></div>${inp('N° de apartamento', '402', { focus: true, type: true })}${btn('Continuar', { tap: true })}</div>` },
+    { cap: 'El sistema confirma que el propietario ya registró el apartamento.', sub: 'Si no lo ha hecho, le pide que lo contacte.', scr: head('Apartamento 402') + `<div class="s-body"><div class="s-card" style="border-color:#1E8E5A"><b>✅ Apartamento registrado</b><span class="s-label">Propietario: Carlos R. · 0 residentes aún</span></div>${btn('Registrarme como residente', { tap: true })}</div>` },
+    { cap: 'Escribe su nombre, cédula, parentesco y celular.', sub: 'El celular es el que usará la portería para avisarle.', scr: head('Residente 1', 'Sus datos') + `<div class="s-body">${inp('Nombre completo', 'Andrea Gómez Toro', { type: true, focus: true })}${inp('Cédula', '52123456')}${inp('Parentesco', 'Arrendatario')}${inp('Celular', '3154567890')}${btn('+ Agregar otro residente', { cls: 'soft' })}</div>` },
+    { cap: 'Agrega sus vehículos y mascotas desde la primera vez.', scr: head('Vehículos y mascotas') + `<div class="s-body s-list">${item('🚗', 'KLM456 · Renault Logan', 'Gris · 2021')}${item('🏍️', 'XYZ12E · Yamaha', 'Negra')}<div class="s-item hl"><i>🐈</i><div><b>Mishi · Gato</b><div class="s-label">Vacuna al día ✔</div></div></div>${btn('+ Agregar mascota', { cls: 'soft' })}</div>` },
+    { cap: 'Guarda y queda registrado en el censo del conjunto.', sub: 'La portería ya lo ve en el apartamento 402.', scr: head('Registro guardado') + ok('Datos guardados', 'Ya hace parte del censo del apto 402.') },
+  ],
+  porteria: [
+    { cap: 'El guarda entra con la contraseña del turno.', sub: 'Letra grande, un solo campo.', scr: head('Portal de vigilancia', 'Solo personal autorizado') + `<div class="s-body">${inp('Contraseña', '••••••••••', { focus: true })}${btn('Ingresar', { tap: true })}</div>` },
+    { cap: 'Escribe el número del apartamento o un nombre.', scr: head('Consultar residentes') + `<div class="s-body">${inp('Apartamento o nombre', '402', { type: true, focus: true })}${btn('🔍 Buscar', { tap: true })}</div>` },
+    { cap: 'Ve la ficha completa del apartamento.', sub: 'Residentes, mascotas, vehículos y quién está autorizado.', scr: head('402 · Carlos Ruiz Pérez', 'Propietario') + `<div class="s-body s-list">${item('👤', 'Andrea Gómez', 'Arrendataria')}${item('🚗', 'KLM456 · Logan gris', 'Parqueadero 34')}${item('🐈', 'Mishi · Gato')}<div class="s-item hl"><i>🤝</i><div><b>Encargada: Luisa F. Mejía</b><div class="s-label">Autorizada por el propietario</div></div></div></div>` },
+    { cap: 'Busca una placa para saber de qué apartamento es el vehículo.', sub: 'Útil ante un incidente en el parqueadero.', scr: head('Buscar por placa') + `<div class="s-body">${inp('Placa', 'KLM', { type: true, focus: true })}<div class="s-card" style="border-color:#0E5FA8"><div class="s-row"><b>KLM456</b><span class="s-pill">Apto 402</span></div><span class="s-label">Renault Logan gris · Carlos Ruiz Pérez</span></div></div>` },
+    { cap: 'Marca las mudanzas del día como realizadas.', sub: 'Queda registrado con su nombre y la hora.', scr: head('Mudanzas de hoy', 'Jueves 29 de octubre') + `<div class="s-body"><div class="s-card"><div class="s-row"><b>Torre 2 · Apto 704</b><span class="s-pill ok">Confirmada</span></div><span class="s-label">8:00 a 12:00 · Ingreso · Mudanzas Express</span>${btn('✔ Marcar realizada', { tap: true, cls: 'alt' })}</div></div>` },
+  ],
+  mudanzas: [
+    { cap: 'El propietario entra con su número de formulario, apto y cédula.', sub: 'Solo el propietario puede agendar.', scr: head('Agendar mudanza') + `<div class="s-body">${inp('N° de formulario', 'PH-0121')}${inp('Apartamento', '402')}${inp('Cédula del propietario', '1020304050', { focus: true })}${btn('Verificar', { tap: true })}</div>` },
+    { cap: 'Elige tipo, torre y fecha.', sub: 'Con la anticipación que fija el conjunto.', scr: head('Datos de la mudanza') + `<div class="s-body">${inp('Tipo', 'Ingreso de muebles')}${inp('Torre', 'Torre 2')}${inp('Fecha', 'Sábado 7 de noviembre', { focus: true, hl: true })}</div>` },
+    { cap: 'El sistema muestra los turnos libres del ascensor ese día.', scr: head('Disponibilidad', 'Torre 2 · 7 de noviembre') + `<div class="s-body s-list"><div class="s-item" style="opacity:.55"><i>⛔</i><div><b>8:00 a 12:00</b><div class="s-label">Ocupado</div></div></div><div class="s-item hl"><i>🟢</i><div><b>13:00 a 17:00</b><div class="s-label">Disponible</div></div></div></div>` },
+    { cap: 'Confirma y la reserva queda hecha.', sub: 'Llega un correo al propietario y a la administración.', scr: head('Reserva confirmada') + ok('Mudanza agendada', 'Torre 2 · 7 nov · 13:00 a 17:00', 'MD-0041') },
+    { cap: 'El día de la mudanza la portería la ve en su pantalla.', scr: head('Mudanzas de hoy', 'Portería') + `<div class="s-body"><div class="s-card hl"><div class="s-row"><b>Torre 2 · Apto 402</b><span class="s-pill ok">Confirmada</span></div><span class="s-label">13:00 a 17:00 · Ingreso de muebles</span><span class="s-label">Autorizó: Carlos Ruiz Pérez</span></div></div>` },
+  ],
+  salon: [
+    { cap: 'El residente abre el calendario del salón social.', sub: 'Rojo: ocupado. Verde: libre.', scr: head('Salón social', 'Noviembre 2026') + `<div class="s-body"><div class="s-cal"><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div><div></div><div></div><div></div><div></div><div></div><div class="busy">7</div><div class="free">8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div class="free pick hl">14</div><div class="busy">15</div></div></div>` },
+    { cap: 'Elige el turno: mañana o tarde.', scr: head('Sábado 14 de noviembre') + `<div class="s-body s-list"><div class="s-item" style="opacity:.55"><i>☀️</i><div><b>Mañana · 9:00 a 14:00</b><div class="s-label">Reservado</div></div></div><div class="s-item hl"><i>🌙</i><div><b>Tarde · 15:00 a 22:00</b><div class="s-label">Disponible</div></div></div></div>` },
+    { cap: 'La reserva queda pendiente de pago por 48 horas.', sub: 'Si no se paga, se libera sola para otro residente.', scr: head('Reserva RS-0032') + `<div class="s-body"><div class="s-card"><div class="s-row"><b>14 nov · Tarde</b><span class="s-pill warn">Pendiente de pago</span></div><span class="s-label">Pague antes del 12 de noviembre</span><div class="bar"><i></i></div></div>${btn('📎 Subir comprobante', { tap: true })}</div>` },
+    { cap: 'Sube la foto del comprobante desde el celular.', scr: head('Comprobante de pago') + `<div class="s-body"><div class="s-card" style="text-align:center;padding:22px"><span style="font-size:34px">🧾</span><br><b>transferencia.jpg</b><span class="s-label">Subiendo… 100%</span><div class="bar"><i></i></div></div></div>` },
+    { cap: 'Confirmado. La administración recibe el aviso con el comprobante.', scr: head('Reserva confirmada') + ok('¡Salón reservado!', 'Sábado 14 de noviembre · Tarde', 'RS-0032') },
+  ],
+  cuenta: [
+    { cap: 'El propietario entra con sus tres datos.', scr: head('Estado de cuenta') + `<div class="s-body">${inp('N° de formulario', 'PH-0121')}${inp('Apartamento', '402')}${inp('Cédula', '1020304050', { focus: true })}${btn('Consultar', { tap: true })}</div>` },
+    { cap: 'Ve su saldo y los últimos pagos.', scr: head('Apto 402', 'Octubre 2026') + `<div class="s-body"><div class="s-card"><span class="s-label">Saldo a hoy</span><span class="s-amount" style="color:#1E8E5A">$ 0</span><span class="s-pill ok" style="justify-self:start">Al día</span></div><div class="s-card"><b>Últimos pagos</b><div class="s-row"><span>Oct 2026</span><b>$ 285.000</b></div><div class="s-row"><span>Sep 2026</span><b>$ 285.000</b></div></div></div>` },
+    { cap: 'Descarga la factura del mes en PDF.', scr: head('Factura de octubre') + `<div class="s-body"><div class="s-card hl"><div class="s-row"><b>📄 Factura 2026-10</b><span class="s-pill">PDF</span></div><span class="s-label">Cuota de administración · vence 10 nov</span></div>${btn('⬇ Descargar factura', { tap: true })}${btn('💳 Pagar en línea', { cls: 'alt' })}</div>` },
+    { cap: 'Genera su paz y salvo al instante, solo si está al día.', sub: 'Con fecha, número y el logo del conjunto.', scr: head('Paz y salvo') + ok('Paz y salvo generado', 'Válido al 29 de octubre de 2026', 'PS-0402') },
+  ],
+  admin: [
+    { cap: 'El administrador busca por cualquier dato.', scr: head('Panel administrativo') + `<div class="s-body">${inp('Buscar', 'Ruiz', { type: true, focus: true })}<div class="s-list"><div class="s-item hl"><i>🏠</i><div><b>402 · Carlos Ruiz Pérez</b><div class="s-label">PH-0121 · Propietario</div></div></div>${item('🏠', '1507 · Marta Ruiz', 'PH-0098')}</div></div>` },
+    { cap: 'Abre el registro completo y corrige lo que haga falta.', scr: head('402 · Carlos Ruiz Pérez', 'Modo edición') + `<div class="s-body">${inp('Celular', '3001234567', { focus: true, type: true })}${inp('Parqueadero', '34')}${btn('💾 Guardar cambios', { tap: true })}</div>` },
+    { cap: 'Revisa las mudanzas de los próximos días.', scr: head('Mudanzas', 'Próximos 7 días') + `<div class="s-body s-list">${item('🚚', 'Sáb 7 · Torre 2 · 402', '13:00 a 17:00')}${item('🚚', 'Dom 8 · Torre 1 · 1203', '8:00 a 12:00')}</div>` },
+    { cap: 'Supervisa las reservas del salón y sus comprobantes.', scr: head('Salón social') + `<div class="s-body s-list"><div class="s-item"><i>🏛️</i><div><b>14 nov · 402</b><div class="s-label">Pagado · comprobante 📎</div></div></div><div class="s-item"><i>🏛️</i><div><b>21 nov · 905</b><div class="s-label"><span class="s-pill warn">Pendiente de pago</span></div></div></div></div>` },
+    { cap: 'Carga el estado de cuenta del mes en minutos.', sub: 'Un archivo del contador se reparte por apartamento.', scr: head('Cargar cartera', 'Octubre 2026') + `<div class="s-body"><div class="s-card"><b>📊 cartera_octubre.xlsx</b><span class="s-label">625 apartamentos</span><div class="bar"><i></i></div></div><div class="s-card"><b>📄 facturas_octubre.pdf</b><span class="s-label">625 páginas repartidas</span><div class="bar"><i></i></div></div></div>` },
+  ],
+  ia: [
+    { cap: 'El asistente aparece dentro de cada portal.', sub: 'Un residente pregunta con sus propias palabras.', scr: head('Asistente del conjunto', 'Disponible 24 horas') + `<div class="s-chat"><div class="bub ai">Hola. Puedo ayudarle con el registro, las mudanzas, el salón social o su estado de cuenta. ¿Qué necesita?</div><div class="bub me">como saco el paz y salvo?</div><div class="bub ai"><span class="dots"><span></span><span></span><span></span></span></div></div>` },
+    { cap: 'Responde con los pasos exactos, en lenguaje sencillo.', scr: head('Asistente del conjunto') + `<div class="s-chat"><div class="bub me">como saco el paz y salvo?</div><div class="bub ai">Claro. Entre al portal <b>Estado de cuenta</b>, escriba su número de formulario, su apartamento y su cédula, y toque <b>Consultar</b>. Si está al día, verá el botón <b>Descargar paz y salvo</b>. ¿Le explico dónde encontrar su número de formulario?</div></div>` },
+    { cap: 'Si quien pregunta es un guarda, responde como manual de portería.', scr: head('Asistente del conjunto') + `<div class="s-chat"><div class="bub me">soy el vigilante, cómo busco una placa?</div><div class="bub ai">En el portal de vigilancia, toque la pestaña <b>Buscar por placa</b>, escriba al menos tres letras o números y toque <b>Buscar</b>. Verá el apartamento y el nombre del propietario del vehículo.</div></div>` },
+    { cap: 'No responde temas ajenos ni consulta datos personales.', sub: 'Explica el proceso; nunca entrega información de un vecino.', scr: head('Asistente del conjunto') + `<div class="s-chat"><div class="bub me">dame el celular del vecino del 301</div><div class="bub ai">No puedo entregar datos de otros residentes. Si necesita contactarlo, escriba a la administración o deje el mensaje en portería. ¿Le ayudo con algo del portal?</div></div>` },
+  ],
+  datos: [
+    { cap: 'Un propietario envía su registro desde el celular…', scr: head('Registro de residentes') + `<div class="s-body">${inp('Apartamento', '2208')}${inp('Propietario', 'Diana Ortiz')}${btn('📤 Enviar formulario', { tap: true })}</div>`, fx: 'row' },
+    { cap: '…y la fila aparece al instante en la hoja del conjunto.', sub: 'Sin intermediarios. La hoja es de la copropiedad.', scr: head('Registro creado') + ok('¡Registro creado!', 'Guardado en la hoja del conjunto.', 'PH-0121') },
+    { cap: 'El administrador la abre cuando quiera, desde cualquier equipo.', sub: 'Filtra, exporta a Excel o la comparte con el consejo.', scr: head('Hoja del conjunto', 'Google Sheets') + `<div class="s-body"><div class="s-card"><b>📗 Registros del conjunto</b><span class="s-label">Última edición: hace 1 minuto</span></div>${item('📤', 'Exportar a Excel')}${item('👥', 'Compartir con el consejo')}${item('🗄️', 'Copia de seguridad: anoche 3:00')}</div>` },
+  ],
+};
+
+// ---------- Reproductor ----------
+function typeIn(root) {
+  root.querySelectorAll('.type').forEach(el => {
+    const t = el.dataset.text; let i = 0; el.textContent = '';
+    const tick = () => { if (i <= t.length) { el.textContent = t.slice(0, i++); el._t = setTimeout(tick, 55); } };
+    tick();
+  });
+}
+function mountDemo(container, name, opts = {}) {
+  const steps = DEMOS[name]; let i = 0, playing = true, timer;
+  container.innerHTML = `<div class="phone"><div class="screen"></div></div><div class="demo-cap"></div>` +
+    (opts.bare ? '' : `<div class="demo-ctl"><button class="dbtn prev" aria-label="Anterior">‹</button><button class="dbtn play">⏸ Pausar</button><button class="dbtn next" aria-label="Siguiente">›</button></div><div class="dots-nav">${steps.map(() => '<i></i>').join('')}</div>`);
+  const screen = container.querySelector('.screen'), cap = container.querySelector('.demo-cap'), dots = container.querySelectorAll('.dots-nav i');
+  function show(n) {
+    i = (n + steps.length) % steps.length; const s = steps[i];
+    screen.innerHTML = s.scr; typeIn(screen);
+    cap.innerHTML = s.cap + (s.sub ? `<small>${s.sub}</small>` : '');
+    dots.forEach((d, k) => d.classList.toggle('on', k === i));
+    if (s.fx === 'row' && opts.onFx) setTimeout(opts.onFx, 2600);
+    clearTimeout(timer); if (playing) timer = setTimeout(() => show(i + 1), s.ms || 4200);
+  }
+  container.querySelector('.prev')?.addEventListener('click', () => { show(i - 1); });
+  container.querySelector('.next')?.addEventListener('click', () => { show(i + 1); });
+  container.querySelector('.play')?.addEventListener('click', e => { playing = !playing; e.target.textContent = playing ? '⏸ Pausar' : '▶ Reproducir'; if (playing) show(i); else clearTimeout(timer); });
+  show(0);
+  return { stop: () => clearTimeout(timer), start: () => { if (playing) show(i); } };
+}
+
+// ---------- Fila nueva en la hoja ----------
+let rowN = 121;
+function addRow() {
+  const tb = document.querySelector('#sheet-table tbody'); if (!tb) return;
+  if (tb.rows.length > 6) tb.deleteRow(0);
+  const tr = document.createElement('tr'); tr.className = 'new';
+  tr.innerHTML = `<td>PH-0${rowN++}</td><td>2026-10-29</td><td>2208</td><td>Propietario</td><td>D. Ortiz</td><td>2</td><td>1</td><td>1</td>`;
+  tb.appendChild(tr);
+}
+
+// ---------- Navegación por pestañas ----------
+const players = {};
+const VIEWS = ['inicio','propietarios','arrendatarios','porteria','mudanzas','salon','cuenta','admin','ia','datos'];
+function go(name) {
+  if (!VIEWS.includes(name)) name = 'inicio';
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'v-' + name));
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === name));
+  const t = document.querySelector(`.tab[data-view="${name}"]`); t?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+  Object.values(players).forEach(p => p.stop());
+  const el = document.querySelector(`#v-${name} .demo`);
+  if (el) { if (!players[name]) players[name] = mountDemo(el, el.dataset.demo, { onFx: name === 'datos' ? addRow : null }); else players[name].start(); }
+  if (location.hash !== '#' + name) history.replaceState(null, '', '#' + name);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+document.getElementById('tabs').addEventListener('click', e => { const b = e.target.closest('.tab'); if (b) go(b.dataset.view); });
+document.addEventListener('click', e => {
+  const g = e.target.closest('[data-go]'); if (!g) return; e.preventDefault();
+  if (g.dataset.go === 'contacto') { go('inicio'); setTimeout(() => document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' }), 150); }
+  else go(g.dataset.go);
+});
+window.addEventListener('hashchange', () => go(location.hash.slice(1)));
+
+// Héroe: rotación de pantallas de todos los módulos
+const heroEl = document.getElementById('hero-screen');
+const heroSteps = [DEMOS.propietarios[5], DEMOS.porteria[2], DEMOS.salon[4], DEMOS.cuenta[1], DEMOS.ia[1], DEMOS.mudanzas[3]];
+let hi = 0;
+function heroTick() { heroEl.innerHTML = heroSteps[hi].scr; typeIn(heroEl); hi = (hi + 1) % heroSteps.length; }
+heroTick(); setInterval(heroTick, 3800);
+
+go(location.hash.slice(1) || 'inicio');
+
+// Modo claro / oscuro
+(function () {
+  const root = document.documentElement, btn = document.getElementById('themeBtn');
+  const dark = () => root.getAttribute('data-theme') === 'dark' || (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+  function paint() { const d = dark(); document.getElementById('themeIcon').textContent = d ? '☀️' : '🌙'; document.getElementById('themeTxt').textContent = d ? 'Modo claro' : 'Modo oscuro'; }
+  try { const saved = localStorage.getItem('atph-theme'); if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved); } catch (e) {}
+  btn.addEventListener('click', () => { const next = dark() ? 'light' : 'dark'; root.setAttribute('data-theme', next); try { localStorage.setItem('atph-theme', next); } catch (e) {} paint(); });
+  paint();
+})();
+</script>
+
+</body>
+</html>
